@@ -1,18 +1,23 @@
-// make run
+// make run {filename}
 
 #include <stdio.h>
 
-void main(){
+void main(int argc, char *argv[]){
+    // Check if the filename is provided
+    if (argc < 2) {
+        printf("Usage: %s <filename>\n", argv[0]);
+    }
+
     // Read from file
-    FILE *fp = fopen("in.txt", "r");
-    if (fp == NULL) {
+    FILE* input = fopen(argv[1], "r");
+    if (input == NULL) {
         printf("Error opening file\n");
         return;
     }
     // Print the contents of the file
     char c;
-    while ((c = fgetc(fp)) != EOF) {
+    while ((c = fgetc(input)) != EOF) {
         printf("%c", c);
     }
-    fclose(fp);
+    fclose(input);
 }
