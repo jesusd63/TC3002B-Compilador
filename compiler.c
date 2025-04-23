@@ -17,7 +17,9 @@ void main(int argc, char *argv[]){
     // Print the contents of the file
     char c;
     while ((c = fgetc(input)) != EOF) {
-        printf("%c", c);
+        if (c != ' ' && c != '\n' && c != '\t') {
+            printf("%c", c);
+        }
     }
     fclose(input);
 }
