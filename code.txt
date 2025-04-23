@@ -1,1 +1,3 @@
-My code
+for (int i = 1; i <= numero; i++) {
+    cout << "Contador: " << i << endl;
+}
