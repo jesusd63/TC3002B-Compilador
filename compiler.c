@@ -1,4 +1,4 @@
-// make run {filename}
+// make run file={filename}
 
 #include <stdio.h>
 
