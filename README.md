@@ -1,12 +1,19 @@
-# TC3002B-Analizador Léxico
-Compilador de C para C++.
+# TC3002B - Analizador Léxico
 
-El compilador recibira un texto como input y el compilador debe decidir si el texto esta escrito bajo el paradigma de:
-- Programación Orientada a Objetos
-- Programación Procedural
-- Mezcla de ambos
+## Descripción
 
-El propósito principal de la fase léxica es identificar los tokens o partes validas en el lenguaje de programación, en el orden que aparecen en el archivo
-- Incluir las palabras claves necesarias y simbolos especiales
-- Descartar cualquier lexema innecesario
-- Generar Mensajes de Error Necesarios
+Este proyecto consiste en un compilador que recibe como entrada un texto escrito en C, y determina si sigue uno de los siguientes paradigmas:
+
+- **Programación Orientada a Objetos**
+- **Programación Procedural**
+- **Mezcla de ambos**
+
+## Objetivo
+
+El propósito principal de la **fase léxica** del compilador es identificar los **tokens** o partes válidas del lenguaje de programación en el orden en que aparecen en el archivo de entrada.
+
+## Funcionalidades
+
+- Detectar **palabras clave** necesarias y **símbolos especiales** del lenguaje.
+- **Descartar lexemas innecesarios** o irrelevantes.
+- Generar los **mensajes de error necesarios** si se encuentran problemas léxicos.
