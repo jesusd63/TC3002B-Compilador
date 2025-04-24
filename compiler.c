@@ -52,18 +52,12 @@ const char* palabras_clave[] = {
     "first", "second"
 };
 
-// Definicion de la cantidad de palabras clave
-int token_id = sizeof(palabras_clave)/sizeof(palabras_clave[0]);
+const char* simbolos[] = {
+    "=", "+", "-", "*", "/", ">", "<", "!", ";", ",", "(", ")", "{", "}", "[", "]", "&", "|", "~",
+};
 
-// Funcion para determinar si una palabra es una palabra clave
-// (comparando con la lista de palabras clave previamente definidas)
-int es_palabra_clave(const char* palabra) {
-    for (int i = 0; i < sizeof(palabras_clave)/sizeof(palabras_clave[0]); i++) {
-        if (strcmp(palabra, palabras_clave[i]) == 0)
-            return 1;
-    }
-    return 0;
-}
+// Definicion de la cantidad de palabras clave
+int token_id = sizeof(palabras_clave)/sizeof(palabras_clave[0]) + sizeof(simbolos)/sizeof(simbolos[0]);
 
 // Estados posibles del DFA
 typedef enum {
@@ -110,12 +104,12 @@ int main(int argc, char* argv[]) {
             } else if (c == '"') {
                 buffer[index++] = c;
                 estado = STR;
-            } else if (c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '>' || c == '<') {
+            } else if (c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '>' || c == '<' || c == '!' || c == '&' || c == '|' || c == '~') {
                 buffer[index++] = c;
                 estado = OP;
-            } else if (c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}') {
-                printf("<%d,SEPARADOR, \"%c\">\n",token_id, c);
-                token_id++;
+            } else if (c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']') {
+                buffer[index++] = c;
+                estado = SEP;
             } else if (!es_espacio(c)) {
                 printf("<%d, DESCONOCIDO, \"%c\">\n",token_id, c);
                 token_id++;
@@ -171,8 +165,25 @@ int main(int argc, char* argv[]) {
 
         case OP:
             buffer[index] = '\0';
-            printf("<%d, OPERADOR, \"%s\">\n", token_id, buffer);
-            token_id++;
+            for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
+                if (strcmp(buffer, simbolos[i]) == 0){
+                    printf("<%d, OPERADOR, \"%s\">\n", i+sizeof(palabras_clave)/sizeof(palabras_clave[0]), buffer);
+                    break;
+                }
+            }
+            index = 0;
+            estado = INICIO;
+            ungetc(c, archivo);
+            break;
+        
+        case SEP:
+            buffer[index] = '\0';
+            for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
+                if (strcmp(buffer, simbolos[i]) == 0){
+                    printf("<%d, SEPARADOR, \"%s\">\n", i+sizeof(palabras_clave)/sizeof(palabras_clave[0]), buffer);
+                    break;
+                }
+            }
             index = 0;
             estado = INICIO;
             ungetc(c, archivo);
