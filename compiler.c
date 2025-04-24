@@ -1,3 +1,5 @@
+// make run file={filename}
+
 #include <stdio.h>
 #include <string.h>
 
