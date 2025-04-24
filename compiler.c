@@ -57,7 +57,14 @@ const char* simbolos[] = {
 };
 
 // Definicion de la cantidad de palabras clave
-int token_id = sizeof(palabras_clave)/sizeof(palabras_clave[0]) + sizeof(simbolos)/sizeof(simbolos[0]);
+int identifier_id = sizeof(palabras_clave)/sizeof(palabras_clave[0]) + sizeof(simbolos)/sizeof(simbolos[0]);
+int string_id;
+int number_id;
+
+int identifier_count = 0;
+int number_count = 0;
+int string_count = 0;
+
 
 // Estados posibles del DFA
 typedef enum {
@@ -75,6 +82,10 @@ int main(int argc, char* argv[]) {
         printf("Uso: %s <archivo>\n", argv[0]);
         return 1;
     }
+
+    string_id = identifier_id+1;
+    number_id = string_id+1;
+
 
     // Abrir el archivo en modo lectura
     FILE* archivo = fopen(argv[1], "r");
@@ -111,8 +122,7 @@ int main(int argc, char* argv[]) {
                 buffer[index++] = c;
                 estado = SEP;
             } else if (!es_espacio(c)) {
-                printf("<%d, DESCONOCIDO, \"%c\">\n",token_id, c);
-                token_id++;
+                printf("<DESCONOCIDO, \"%c\">\n", c);
             }
             break;
 
@@ -130,8 +140,8 @@ int main(int argc, char* argv[]) {
                     }
                 }
                 if (!es_palabra){
-                    printf("<%d, IDENTIFICADOR, \"%s\">\n", token_id, buffer);
-                    token_id++;
+                    identifier_count++;
+                    printf("<%d, IDENTIFICADOR, %d \"%s\">\n", identifier_id, identifier_count, buffer);
                 }
                 index = 0;
                 estado = INICIO;
@@ -144,8 +154,8 @@ int main(int argc, char* argv[]) {
                 buffer[index++] = c;
             } else {
                 buffer[index] = '\0';
-                printf("<%d, NUMERO, \"%s\">\n", token_id, buffer);
-                token_id++;
+                number_count++;
+                printf("<%d, NUMERO, %d \"%s\">\n", number_id, number_count, buffer);
                 index = 0;
                 estado = INICIO;
                 ungetc(c, archivo);
@@ -156,8 +166,8 @@ int main(int argc, char* argv[]) {
             buffer[index++] = c;
             if (c == '"') {
                 buffer[index] = '\0';
-                printf("<%d, STRING, \"%s\">\n", token_id, buffer);
-                token_id++;
+                string_count++;
+                printf("<%d, STRING, %d \"%s\">\n", string_id, string_count, buffer);
                 index = 0;
                 estado = INICIO;
             }
