@@ -114,9 +114,11 @@ int main(int argc, char* argv[]) {
                 buffer[index++] = c;
                 estado = OP;
             } else if (c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}') {
-                printf("<SEPARADOR, \"%c\">\n", c);
+                printf("<%d,SEPARADOR, \"%c\">\n",token_id, c);
+                token_id++;
             } else if (!es_espacio(c)) {
-                printf("<DESCONOCIDO, \"%c\">\n", c);
+                printf("<%d, DESCONOCIDO, \"%c\">\n",token_id, c);
+                token_id++;
             }
             break;
 
@@ -134,7 +136,8 @@ int main(int argc, char* argv[]) {
                     }
                 }
                 if (!es_palabra){
-                    printf("<IDENTIFICADOR, \"%s\">\n", buffer);
+                    printf("<%d, IDENTIFICADOR, \"%s\">\n", token_id, buffer);
+                    token_id++;
                 }
                 index = 0;
                 estado = INICIO;
@@ -147,7 +150,8 @@ int main(int argc, char* argv[]) {
                 buffer[index++] = c;
             } else {
                 buffer[index] = '\0';
-                printf("<NUMERO, \"%s\">\n", buffer);
+                printf("<%d, NUMERO, \"%s\">\n", token_id, buffer);
+                token_id++;
                 index = 0;
                 estado = INICIO;
                 ungetc(c, archivo);
@@ -158,7 +162,8 @@ int main(int argc, char* argv[]) {
             buffer[index++] = c;
             if (c == '"') {
                 buffer[index] = '\0';
-                printf("<STRING, \"%s\">\n", buffer);
+                printf("<%d, STRING, \"%s\">\n", token_id, buffer);
+                token_id++;
                 index = 0;
                 estado = INICIO;
             }
@@ -166,7 +171,8 @@ int main(int argc, char* argv[]) {
 
         case OP:
             buffer[index] = '\0';
-            printf("<OPERADOR, \"%s\">\n", buffer);
+            printf("<%d, OPERADOR, \"%s\">\n", token_id, buffer);
+            token_id++;
             index = 0;
             estado = INICIO;
             ungetc(c, archivo);
