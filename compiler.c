@@ -52,6 +52,7 @@ const char* palabras_clave[] = {
     "first", "second"
 };
 
+// Definicion de los simbolos del lenguaje
 const char* simbolos[] = {
     "=", "+", "-", "*", "/", ">", "<", "!", ";", ",", "(", ")", "{", "}", "[", "]", "&", "|", "~",
 };
@@ -68,12 +69,12 @@ int string_count = 0;
 
 // Estados posibles del DFA
 typedef enum {
-    INICIO,
-    ID,
-    NUM,
-    STR,
-    OP,
-    SEP
+    INICIO, //Estado inicial
+    ID, // Procesando un Identificador
+    NUM, // Procesando un Numero (1-9)
+    STR, // Procesando un String
+    OP, // Procesando un Operador ()
+    SEP // Procesando un Separador
 } Estado;
 
 int main(int argc, char* argv[]) {
