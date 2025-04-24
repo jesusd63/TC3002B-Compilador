@@ -11,7 +11,7 @@ int es_letra(char c) {
 }
 
 // Funcion para determinar si un caracter es un digito (0-9)
-int es_digito(char c) {
+int es_digito(char c) { 
     return (c >= '0' && c <= '9');
 }
 
@@ -32,25 +32,28 @@ const char* palabras_clave[] = {
     "int", "float", "char", "long", "double", "string", "enum", "pair", "bool", "void", "const", "static",
 
     // Object Oriented Programming Language Keywords
-    "class", "struct", "this", "public", "private", "protected", "extends", "implements", "override", "virtual", "new","delete",
+    "class", "struct", "this", "public", "private", "protected", "extends", "implements", "override", "virtual", "new", "delete",
 
     // Mixed Programming Language Keywords
 
-        // Control Structures & Logic Keywords
-        "if", "else", "switch", "case", "break", "continue", "while", "for", "do",
-        
-        // Functions and Program Structure Keywords
-        "main", "return", "void", "function", "using", "namespace", "include"
+    // Control Structures & Logic Keywords
+    "if", "else", "switch", "case", "break", "continue", "while", "for", "do",
 
-        // Error Handling Keywords
-        "try", "catch", "throw", "finally",
+    // Functions and Program Structure Keywords
+    "main", "return", "void", "function", "using", "namespace", "include"
 
-        // Boolean Logic Keywords
-        "true", "false", "null",
+    // Error Handling Keywords
+    "try", "catch", "throw", "finally",
 
-        // Map and Pair Methods 
-        "first", "second"
+    // Boolean Logic Keywords
+    "true", "false", "null",
+
+    // Map and Pair Methods
+    "first", "second"
 };
+
+// Definicion de la cantidad de palabras clave
+int token_id = sizeof(palabras_clave)/sizeof(palabras_clave[0]);
 
 // Funcion para determinar si una palabra es una palabra clave
 // (comparando con la lista de palabras clave previamente definidas)
@@ -95,76 +98,82 @@ int main(int argc, char* argv[]) {
 
     while ((c = fgetc(archivo)) != EOF) {
         switch (estado) {
-            // Estado inicial: Recibir un caracter y determinar el estado
-            // correspondiente (ID, NUM, STR, OP, SEP)
-            case INICIO:
-                if (es_letra(c) || c == '_') {
-                    buffer[index++] = c;
-                    estado = ID;
-                } else if (es_digito(c)) {
-                    buffer[index++] = c;
-                    estado = NUM;
-                } else if (c == '"') {
-                    buffer[index++] = c;
-                    estado = STR;
-                } else if (c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '>' || c == '<') {
-                    buffer[index++] = c;
-                    estado = OP;
-                } else if (c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}') {
-                    printf("<SEPARADOR, \"%c\">\n", c);
-                } else if (!es_espacio(c)) {
-                    printf("<DESCONOCIDO, \"%c\">\n", c);
-                }
-                break;
-
-            case ID:
-                if (es_alfanumerico(c) || c == '_') {
-                    buffer[index++] = c;
-                } else {
-                    buffer[index] = '\0';
-                    if (es_palabra_clave(buffer)) {
-                        printf("<PALABRA_CLAVE, \"%s\">\n", buffer);
-                    } else {
-                        printf("<IDENTIFICADOR, \"%s\">\n", buffer);
-                    }
-                    index = 0;
-                    estado = INICIO;
-                    ungetc(c, archivo);
-                }
-                break;
-
-            case NUM:
-                if (es_digito(c)) {
-                    buffer[index++] = c;
-                } else {
-                    buffer[index] = '\0';
-                    printf("<NUMERO, \"%s\">\n", buffer);
-                    index = 0;
-                    estado = INICIO;
-                    ungetc(c, archivo);
-                }
-                break;
-
-            case STR:
+        // Estado inicial: Recibir un caracter y determinar el estado
+        // correspondiente (ID, NUM, STR, OP, SEP)
+        case INICIO:
+            if (es_letra(c) || c == '_') {
                 buffer[index++] = c;
-                if (c == '"') {
-                    buffer[index] = '\0';
-                    printf("<STRING, \"%s\">\n", buffer);
-                    index = 0;
-                    estado = INICIO;
-                }
-                break;
+                estado = ID;
+            } else if (es_digito(c)) {
+                buffer[index++] = c;
+                estado = NUM;
+            } else if (c == '"') {
+                buffer[index++] = c;
+                estado = STR;
+            } else if (c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '>' || c == '<') {
+                buffer[index++] = c;
+                estado = OP;
+            } else if (c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}') {
+                printf("<SEPARADOR, \"%c\">\n", c);
+            } else if (!es_espacio(c)) {
+                printf("<DESCONOCIDO, \"%c\">\n", c);
+            }
+            break;
 
-            case OP:
+        case ID:
+            if (es_alfanumerico(c) || c == '_') {
+                buffer[index++] = c;
+            } else {
                 buffer[index] = '\0';
-                printf("<OPERADOR, \"%s\">\n", buffer);
+                int es_palabra = 0;
+                for (int i = 0; i < sizeof(palabras_clave) / sizeof(palabras_clave[0]); i++){
+                    if (strcmp(buffer, palabras_clave[i]) == 0){
+                        printf("<%d, PALABRA_CLAVE, \"%s\">\n", i, buffer);
+                        es_palabra = 1;
+                        break;
+                    }
+                }
+                if (!es_palabra){
+                    printf("<IDENTIFICADOR, \"%s\">\n", buffer);
+                }
                 index = 0;
                 estado = INICIO;
                 ungetc(c, archivo);
-                break;
+            }
+            break;
 
-            default:
-                break;
+        case NUM:
+            if (es_digito(c)) {
+                buffer[index++] = c;
+            } else {
+                buffer[index] = '\0';
+                printf("<NUMERO, \"%s\">\n", buffer);
+                index = 0;
+                estado = INICIO;
+                ungetc(c, archivo);
+            }
+            break;
+
+        case STR:
+            buffer[index++] = c;
+            if (c == '"') {
+                buffer[index] = '\0';
+                printf("<STRING, \"%s\">\n", buffer);
+                index = 0;
+                estado = INICIO;
+            }
+            break;
+
+        case OP:
+            buffer[index] = '\0';
+            printf("<OPERADOR, \"%s\">\n", buffer);
+            index = 0;
+            estado = INICIO;
+            ungetc(c, archivo);
+            break;
+
+        default:
+            break;
         }
     }
 
