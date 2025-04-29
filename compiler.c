@@ -126,7 +126,10 @@ int main(int argc, char* argv[]) {
                 estado = SEP;
             } else if(c == ';' || c == ',' || c == '[' || c == ']' || c == ':' || c == '.' || c == '?') {
                 buffer[index++] = c;
-                estado = ID;
+                buffer[index] = '\0';
+                identifier_count++;
+                printf("<%d, %d>\n", identifier_id, identifier_count);
+                index = 0;
             } else if (!es_espacio(c)) {
                 printf("Error");
                 estado = ERROR;
