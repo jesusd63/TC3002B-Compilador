@@ -6,4 +6,6 @@ int main() {
     } else {
         printf("b no es mayor\n");
     }
+    class
+    delete
 }
