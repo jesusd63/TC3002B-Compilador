@@ -75,7 +75,8 @@ typedef enum {
     NUM, // Procesando un Numero (1-9)
     STR, // Procesando un String
     OP, // Procesando un Operador ()
-    SEP // Procesando un Separador
+    SEP, // Procesando un Separador
+    ERROR // Estado de error
 } Estado;
 
 int main(int argc, char* argv[]) {
@@ -123,12 +124,12 @@ int main(int argc, char* argv[]) {
             } else if (c == '(' || c == ')' || c == '{' || c == '}') {
                 buffer[index++] = c;
                 estado = SEP;
+            } else if(c == ';' || c == ',' || c == '[' || c == ']' || c == ':' || c == '.' || c == '?') {
+                buffer[index++] = c;
+                estado = ID;
             } else if (!es_espacio(c)) {
-                buffer[0] = c;
-                buffer[1] = '\0';
-                identifier_count++;
-                printf("<%d, %d \"%s\">\n", identifier_id, identifier_count, buffer);
-                index = 0;
+                printf("Error");
+                estado = ERROR;
             }
             break;
 
@@ -140,14 +141,14 @@ int main(int argc, char* argv[]) {
                 int es_palabra = 0;
                 for (int i = 0; i < sizeof(palabras_clave) / sizeof(palabras_clave[0]); i++){
                     if (strcmp(buffer, palabras_clave[i]) == 0){
-                        printf("<%d, \"%s\">\n", i, buffer);
+                        printf("<%d>\n", i);
                         es_palabra = 1;
                         break;
                     }
                 }
                 if (!es_palabra){
                     identifier_count++;
-                    printf("<%d, %d \"%s\">\n", identifier_id, identifier_count, buffer);
+                    printf("<%d, %d>\n", identifier_id, identifier_count);
                 }
                 index = 0;
                 estado = INICIO;
@@ -160,8 +161,8 @@ int main(int argc, char* argv[]) {
                 buffer[index++] = c;
             } else {
                 buffer[index] = '\0';
-                identifier_count++;
-                printf("<%d, %d \"%s\">\n", identifier_id, identifier_count, buffer);
+                number_count++;
+                printf("<%d, %d>\n", number_id, number_count);
                 index = 0;
                 estado = INICIO;
                 ungetc(c, archivo);
@@ -172,8 +173,8 @@ int main(int argc, char* argv[]) {
             buffer[index++] = c;
             if (c == '"') {
                 buffer[index] = '\0';
-                identifier_count++;
-                printf("<%d, %d \"%s\">\n", identifier_id, identifier_count, buffer);
+                string_count++;
+                printf("<%d, %d>\n", string_id, string_count);
                 index = 0;
                 estado = INICIO;
             }
@@ -182,7 +183,7 @@ int main(int argc, char* argv[]) {
         case OP:
             buffer[index] = '\0';
             identifier_count++;
-            printf("<%d, %d \"%s\">\n", identifier_id, identifier_count, buffer);
+            printf("<%d, %d>\n", identifier_id, identifier_count);
             index = 0;
             estado = INICIO;
             ungetc(c, archivo);
@@ -192,7 +193,7 @@ int main(int argc, char* argv[]) {
             buffer[index] = '\0';
             for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
                 if (strcmp(buffer, simbolos[i]) == 0){
-                    printf("<%d, \"%s\">\n", i+sizeof(palabras_clave)/sizeof(palabras_clave[0]), buffer);
+                    printf("<%d>\n", i+sizeof(palabras_clave)/sizeof(palabras_clave[0]));
                     break;
                 }
             }
@@ -202,6 +203,11 @@ int main(int argc, char* argv[]) {
             break;
 
         default:
+            break;
+        }
+
+        // Si se llega a un estado de error, terminar
+        if(estado == ERROR) {
             break;
         }
     }
