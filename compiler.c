@@ -27,35 +27,20 @@ int es_espacio(char c) {
 }
 
 // Palabras clave del lenguaje
-const char* palabras_clave[] = {
-    // Procedural Programming Language Keywords
-    // "int", "float", "char", "long", "double", "string", "enum", "pair", "bool", "void", "const", "static",
+const char* separadores[] = {
+    // Separadores del lenguaje
+    "(", ")", "{", "}",
+};
 
+// Palabras clave del lenguaje
+const char* palabras_clave[] = {
     // Object Oriented Programming Language Keywords
     "class", "struct", "public", "private", "protected", "extends", "implements", "override", "virtual"
-
-    // Mixed Programming Language Keywords
-
-    // Control Structures & Logic Keywords
-    // "if", "else", "switch", "case", "break", "continue", "while", "for", "do",
-
-    // Functions and Program Structure Keywords
-    // "main", "return", "void", "function", "using", "namespace", "include"
-
-    // Error Handling Keywords
-    // "try", "catch", "throw", "finally",
-
-    // Boolean Logic Keywords
-    // "true", "false", "null",
-
-    // Map and Pair Methods
-    // "first", "second"
 };
 
 // Definicion de los simbolos del lenguaje
 const char* simbolos[] = {
-    // "=", "+", "-", "*", "/", ">", "<", "!", ";", ",", "[", "]", "&", "|", "~",
-    "(", ")", "{", "}",
+    ";", "*", " ", "\t", "\n", ",", "&", "<", ">", ".", ":"
 };
 
 // Definicion de la cantidad de palabras clave
