@@ -32,7 +32,7 @@ const char* palabras_clave[] = {
     // "int", "float", "char", "long", "double", "string", "enum", "pair", "bool", "void", "const", "static",
 
     // Object Oriented Programming Language Keywords
-    "class", "struct", "this", "public", "private", "protected", "extends", "implements", "override", "virtual", "new", "delete",
+    "class", "struct", "public", "private", "protected", "extends", "implements", "override", "virtual"
 
     // Mixed Programming Language Keywords
 
