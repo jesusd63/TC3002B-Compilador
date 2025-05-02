@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
             } else if (c == '"') {
                 buffer[index++] = c;
                 estado = STR;
-            } else if (c == ';' || c == '*' ||c == ',' || c == ',' || c == '&' || c == '<' || c == '>' || c == '.' || c == ':' || c == '=') {
+            } else if (c == ';' || c == '*' ||c == ',' || c == '&' || c == '<' || c == '>' || c == '.' || c == ':' || c == '=') {
                 buffer[index++] = c;
                 estado = OP;
             } else if (c == '(' || c == ')' || c == '{' || c == '}') {
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
                 int es_palabra = 0;
                 for (int i = 0; i < sizeof(palabras_clave) / sizeof(palabras_clave[0]); i++){
                     if (strcmp(buffer, palabras_clave[i]) == 0){
-                        printf("<%d,>\n", i + 1 + sizeof(separadores) / sizeof(separadores[0]));
+                        printf("<%d>\n", i + 1 + sizeof(separadores) / sizeof(separadores[0]));
                         es_palabra = 1;
                         break;
                     }
