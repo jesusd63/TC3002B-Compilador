@@ -129,14 +129,14 @@ int main(int argc, char* argv[]) {
                 int es_palabra = 0;
                 for (int i = 0; i < sizeof(palabras_clave) / sizeof(palabras_clave[0]); i++){
                     if (strcmp(buffer, palabras_clave[i]) == 0){
-                        printf("<%d, %s>\n", i + 1 + sizeof(separadores) / sizeof(separadores[0]), buffer);
+                        printf("<%d,>\n", i + 1 + sizeof(separadores) / sizeof(separadores[0]));
                         es_palabra = 1;
                         break;
                     }
                 }
                 if (!es_palabra){
                     identifier_count++;
-                    printf("<%d, %d, %s>\n", identifier_id, identifier_count, buffer);
+                    printf("<%d, %d>\n", identifier_id, identifier_count);
                 }
                 index = 0;
                 estado = INICIO;
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
             if (c == '"') {
                 buffer[index] = '\0';
                 string_count++;
-                printf("<%d, %d, %s>\n", string_id, string_count, buffer);
+                printf("<%d, %d>\n", string_id, string_count);
                 index = 0;
                 estado = INICIO;
             }
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
             buffer[index] = '\0';
             for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
                 if (strcmp(buffer, simbolos[i]) == 0){
-                    printf("<%d, %c>\n", i + 1 + (sizeof(separadores) / sizeof(separadores[0])) + (sizeof(palabras_clave) / sizeof(palabras_clave[0])), buffer[0]);
+                    printf("<%d>\n", i + 1 + (sizeof(separadores) / sizeof(separadores[0])) + (sizeof(palabras_clave) / sizeof(palabras_clave[0])));
                     break;
                 }
             }
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
             buffer[index] = '\0';
             for (int i = 0; i < sizeof(separadores) / sizeof(separadores[0]); i++){
                 if (strcmp(buffer, separadores[i]) == 0){
-                    printf("<%d, %c>\n", i+1, buffer[0]);
+                    printf("<%d>\n", i+1);
                     break;
                 }
             }
