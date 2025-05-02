@@ -1,0 +1,58 @@
+-------------------------------------------Test 1:-------------------------------------------
+(
+)
+{
+}
+class
+struct
+public
+private
+protected
+extends
+implements
+override
+virtual
+;
+*
+,
+&
+<
+>
+.
+:
+=
+test
+"test"
+
+-------------------------------------------Test 2:-------------------------------------------
+myVar
+counter1
+_privateVar
+Class2
+$specialVar
+my_variable_name
+camelCaseVar
+PascalCaseVar
+
+-------------------------------------------Test 3:-------------------------------------------
+int main() {
+    int a = 10;
+    int b = a + 5;
+    if (b > 10) {
+        printf("b es mayor que 10\n");
+    } else {
+        printf("b no es mayor\n");
+    }
+    class
+    delete
+}
+@
+class
+
+-------------------------------------------Test 4:-------------------------------------------
+class @InvalidName { 
+private 123variable; 
+!@#$%^ 
+"unterminated string
+ /* Comment block without closing */ 
+}

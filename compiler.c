@@ -26,27 +26,25 @@ int es_espacio(char c) {
     return c == ' ' || c == '\n' || c == '\t' || c == '\r';
 }
 
-// Palabras clave del lenguaje
+// Separadores del lenguaje
 const char* separadores[] = {
-    // Separadores del lenguaje
     "(", ")", "{", "}",
 };
 
 // Palabras clave del lenguaje
 const char* palabras_clave[] = {
     // Object Oriented Programming Language Keywords
-    "class", "struct", "public", "private", "protected", "extends", "implements", "override", "virtual"
+    "class", "struct", "public", "private", "protected", "extends", "implements", "override", "virtual",
 };
 
 // Definicion de los simbolos del lenguaje
 const char* simbolos[] = {
-    ";", "*", " ", "\t", "\n", ",", "&", "<", ">", ".", ":"
+    ";", "*", ",", "&", "<", ">", ".", ":", "="
 };
 
 // Definicion de la cantidad de palabras clave
-int identifier_id = sizeof(palabras_clave)/sizeof(palabras_clave[0]) + sizeof(simbolos)/sizeof(simbolos[0]);
+int identifier_id = 1 + sizeof(separadores)/sizeof(separadores[0]) + sizeof(palabras_clave)/sizeof(palabras_clave[0]) + sizeof(simbolos)/sizeof(simbolos[0]);
 int string_id;
-int number_id;
 
 int identifier_count = 0;
 int number_count = 0;
@@ -65,14 +63,14 @@ typedef enum {
 } Estado;
 
 int main(int argc, char* argv[]) {
-    // Comprobar si se recibierons los argumentos minimos
+    // Comprobar si se recibieron los argumentos minimos
     if (argc < 2) {
         printf("Uso: %s <archivo>\n", argv[0]);
         return 1;
     }
 
+    // Variables para los IDs de los Strings
     string_id = identifier_id+1;
-    number_id = string_id+1;
 
 
     // Abrir el archivo en modo lectura
@@ -103,13 +101,13 @@ int main(int argc, char* argv[]) {
             } else if (c == '"') {
                 buffer[index++] = c;
                 estado = STR;
-            } else if (c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '>' || c == '<' || c == '!' || c == '&' || c == '|' || c == '~') {
+            } else if (c == ';' || c == '*' ||c == ',' || c == '&' || c == '<' || c == '>' || c == '.' || c == ':' || c == '=') {
                 buffer[index++] = c;
                 estado = OP;
             } else if (c == '(' || c == ')' || c == '{' || c == '}') {
                 buffer[index++] = c;
                 estado = SEP;
-            } else if(c == ';' || c == ',' || c == '[' || c == ']' || c == ':' || c == '.' || c == '?') {
+            } else if(c == '[' || c == ']' || c == '?' || c == '!' || c == '+' || c == '-' || c == '/' || c == '%' || c == '^' || c == '|') {
                 buffer[index++] = c;
                 buffer[index] = '\0';
                 identifier_count++;
@@ -122,20 +120,24 @@ int main(int argc, char* argv[]) {
             break;
 
         case ID:
+            // ===== Estado ID =====
             if (es_alfanumerico(c) || c == '_') {
                 buffer[index++] = c;
             } else {
                 buffer[index] = '\0';
                 int es_palabra = 0;
+                // Verificar si coincide con alguna palabra clave
                 for (int i = 0; i < sizeof(palabras_clave) / sizeof(palabras_clave[0]); i++){
                     if (strcmp(buffer, palabras_clave[i]) == 0){
-                        printf("<%d>\n", i);
+                        // Si es palabra clave: imprimir su token (Sumando el ID de los separadores)
+                        printf("<%d>\n", i + 1 + sizeof(separadores) / sizeof(separadores[0]));
                         es_palabra = 1;
                         break;
                     }
                 }
                 if (!es_palabra){
                     identifier_count++;
+                    // Si es identificador: asignar ID secuencial
                     printf("<%d, %d>\n", identifier_id, identifier_count);
                 }
                 index = 0;
@@ -145,12 +147,12 @@ int main(int argc, char* argv[]) {
             break;
 
         case NUM:
+            // ===== Estado NUM =====
             if (es_digito(c)) {
                 buffer[index++] = c;
             } else {
                 buffer[index] = '\0';
-                number_count++;
-                printf("<%d, %d>\n", number_id, number_count);
+                // No se genera token explícito para NUM
                 index = 0;
                 estado = INICIO;
                 ungetc(c, archivo);
@@ -158,10 +160,12 @@ int main(int argc, char* argv[]) {
             break;
 
         case STR:
+            // ===== Estado STR =====
             buffer[index++] = c;
             if (c == '"') {
                 buffer[index] = '\0';
                 string_count++;
+                // Es String: asignar ID secuencial
                 printf("<%d, %d>\n", string_id, string_count);
                 index = 0;
                 estado = INICIO;
@@ -169,19 +173,27 @@ int main(int argc, char* argv[]) {
             break;
 
         case OP:
+            // ===== Estado OP =====
             buffer[index] = '\0';
-            identifier_count++;
-            printf("<%d, %d>\n", identifier_id, identifier_count);
+            for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
+                if (strcmp(buffer, simbolos[i]) == 0){
+                    // Si es simbolo: imprimir su token (Sumando el ID de los separadores y palabras clave)
+                    printf("<%d>\n", i + 1 + (sizeof(separadores) / sizeof(separadores[0])) + (sizeof(palabras_clave) / sizeof(palabras_clave[0])));
+                    break;
+                }
+            }
             index = 0;
             estado = INICIO;
             ungetc(c, archivo);
             break;
         
         case SEP:
+            // ===== Estado SEP =====
             buffer[index] = '\0';
-            for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
-                if (strcmp(buffer, simbolos[i]) == 0){
-                    printf("<%d>\n", i+sizeof(palabras_clave)/sizeof(palabras_clave[0]));
+            for (int i = 0; i < sizeof(separadores) / sizeof(separadores[0]); i++){
+                if (strcmp(buffer, separadores[i]) == 0){
+                    // Si es separador: imprimir su token
+                    printf("<%d>\n", i+1);
                     break;
                 }
             }
