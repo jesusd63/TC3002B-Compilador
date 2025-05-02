@@ -35,16 +35,16 @@ const char* separadores[] = {
 // Palabras clave del lenguaje
 const char* palabras_clave[] = {
     // Object Oriented Programming Language Keywords
-    "class", "struct", "public", "private", "protected", "extends", "implements", "override", "virtual"
+    "class", "struct", "public", "private", "protected", "extends", "implements", "override", "virtual",
 };
 
 // Definicion de los simbolos del lenguaje
 const char* simbolos[] = {
-    ";", "*", " ", "\t", "\n", ",", "&", "<", ">", ".", ":"
+    ";", "*", " ", "\t", "\n", ",", "&", "<", ">", ".", ":", "="
 };
 
 // Definicion de la cantidad de palabras clave
-int identifier_id = sizeof(palabras_clave)/sizeof(palabras_clave[0]) + sizeof(simbolos)/sizeof(simbolos[0]);
+int identifier_id = 1 + sizeof(separadores)/sizeof(separadores[0]) + sizeof(palabras_clave)/sizeof(palabras_clave[0]) + sizeof(simbolos)/sizeof(simbolos[0]);
 int string_id;
 int number_id;
 
@@ -103,13 +103,13 @@ int main(int argc, char* argv[]) {
             } else if (c == '"') {
                 buffer[index++] = c;
                 estado = STR;
-            } else if (c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '>' || c == '<' || c == '!' || c == '&' || c == '|' || c == '~') {
+            } else if (c == ';' || c == '*' ||c == ',' || c == ',' || c == '&' || c == '<' || c == '>' || c == '.' || c == ':' || c == '=') {
                 buffer[index++] = c;
                 estado = OP;
             } else if (c == '(' || c == ')' || c == '{' || c == '}') {
                 buffer[index++] = c;
                 estado = SEP;
-            } else if(c == ';' || c == ',' || c == '[' || c == ']' || c == ':' || c == '.' || c == '?') {
+            } else if(c == '[' || c == ']' || c == '?' || c == '!' || c == '+' || c == '-' || c == '/' || c == '%' || c == '^' || c == '|') {
                 buffer[index++] = c;
                 buffer[index] = '\0';
                 identifier_count++;
@@ -129,14 +129,14 @@ int main(int argc, char* argv[]) {
                 int es_palabra = 0;
                 for (int i = 0; i < sizeof(palabras_clave) / sizeof(palabras_clave[0]); i++){
                     if (strcmp(buffer, palabras_clave[i]) == 0){
-                        printf("<%d>\n", i);
+                        printf("<%d, %s>\n", i + 1 + sizeof(separadores) / sizeof(separadores[0]), buffer);
                         es_palabra = 1;
                         break;
                     }
                 }
                 if (!es_palabra){
                     identifier_count++;
-                    printf("<%d, %d>\n", identifier_id, identifier_count);
+                    printf("<%d, %d, %s>\n", identifier_id, identifier_count, buffer);
                 }
                 index = 0;
                 estado = INICIO;
@@ -149,8 +149,6 @@ int main(int argc, char* argv[]) {
                 buffer[index++] = c;
             } else {
                 buffer[index] = '\0';
-                number_count++;
-                printf("<%d, %d>\n", number_id, number_count);
                 index = 0;
                 estado = INICIO;
                 ungetc(c, archivo);
@@ -162,7 +160,7 @@ int main(int argc, char* argv[]) {
             if (c == '"') {
                 buffer[index] = '\0';
                 string_count++;
-                printf("<%d, %d>\n", string_id, string_count);
+                printf("<%d, %d, %s>\n", string_id, string_count, buffer);
                 index = 0;
                 estado = INICIO;
             }
@@ -170,8 +168,12 @@ int main(int argc, char* argv[]) {
 
         case OP:
             buffer[index] = '\0';
-            identifier_count++;
-            printf("<%d, %d>\n", identifier_id, identifier_count);
+            for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
+                if (strcmp(buffer, simbolos[i]) == 0){
+                    printf("<%d, %c>\n", i + 1 + (sizeof(separadores) / sizeof(separadores[0])) + (sizeof(palabras_clave) / sizeof(palabras_clave[0])), buffer[0]);
+                    break;
+                }
+            }
             index = 0;
             estado = INICIO;
             ungetc(c, archivo);
@@ -179,9 +181,9 @@ int main(int argc, char* argv[]) {
         
         case SEP:
             buffer[index] = '\0';
-            for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
-                if (strcmp(buffer, simbolos[i]) == 0){
-                    printf("<%d>\n", i+sizeof(palabras_clave)/sizeof(palabras_clave[0]));
+            for (int i = 0; i < sizeof(separadores) / sizeof(separadores[0]); i++){
+                if (strcmp(buffer, separadores[i]) == 0){
+                    printf("<%d, %c>\n", i+1, buffer[0]);
                     break;
                 }
             }
