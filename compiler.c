@@ -26,6 +26,10 @@ int es_espacio(char c) {
     return c == ' ' || c == '\n' || c == '\t' || c == '\r';
 }
 
+int es_delimitador(char c) {
+    return c == ';' || c == ',' || c == '.' || c == ':' || c == '=' || c == '*' || c == '&' || c == '<' || c == '>';
+}
+
 // Separadores del lenguaje
 const char* separadores[] = {
     "(", ")", "{", "}",
@@ -50,17 +54,99 @@ int identifier_count = 0;
 int number_count = 0;
 int string_count = 0;
 
+int Accept(int estado){
+    if(estado == 1 || estado == 2 || estado == 3 || estado == 4 || estado == 5 || estado == 7 || estado == 9){
+        return 1; // Aceptar el token
+    }
+    return 0; // No aceptar el token
+}
 
-// Estados posibles del DFA
-typedef enum {
-    INICIO, //Estado inicial
-    ID, // Procesando un Identificador
-    NUM, // Procesando un Numero (1-9)
-    STR, // Procesando un String
-    OP, // Procesando un Operador ()
-    SEP, // Procesando un Separador
-    ERROR // Estado de error
-} Estado;
+int Error(int estado){
+    return estado == 10; // Estado de error
+}
+
+int TransitionTable[10][10] = {
+    [0] = {6, 6, 5, 5, 1, 2, 3, 4, 8, 5}, // Estado de inicio
+    [1] = {0}, // Estado inicial
+    [2] = {0}, // Estado de identificador
+    [3] = {0}, // Estado de numero
+    [4] = {0}, // Estado de cadena
+    [5] = {0}, // Estado de separador
+    [6] = {6, 6, 6, 7, 5, 5, 5, 5, 5, 5},
+    [7] = {0}, // Estado de simbolo
+    [8] = {8, 8, 8, 8, 8, 8, 8, 8, 9, 8}, // Estado de palabra clave
+    [9] = {0} // Estado de fin
+}; 
+
+int char_to_col(char c) {
+    if (es_letra(c)) return 0; // Columna para letras
+    if (c == '_') return 1; // Columna para undersore
+    if (es_digito(c)) return 2; // Columna para digitos
+    if (es_espacio || es_delimitador(c)) return 3; // Columna para delimitadores 
+    if (c == '(') return 4; // Columna para paréntesis izquierdo
+    if (c == ')') return 5; // Columna para paréntesis derecho
+    if (c == '{') return 6; // Columna para llave izquierda
+    if (c == '}') return 7; // Columna para llave derecha
+    if (c == '"') return 8; // Columna para comillas
+    else return 9; // Columna para espacio en blanco
+    return -1; // Caracter no reconocido
+}
+
+int T(int estado, char c) {
+    int col = char_to_col(c);
+    return TransitionTable[estado][col]; // Retorna el nuevo estado
+}
+
+int Advance(int estado, char c) {
+    // Si estamos procesando una cadena, siempre avanzamos
+    if (estado == 4 || estado == 8 || estado == 9) return 1;
+    
+    // Si estamos en un estado aceptador, no avanzar (porque ya tenemos un token completo)
+    if (Accept(estado)) return 0;
+
+    // En cualquier otro caso, seguimos avanzando
+    return 1;
+}
+
+void record_token(char* buffer, int index, int estado) {
+    printf("Estado: %d\n", estado);
+    buffer[index] = '\0'; // Terminar el string
+    printf("Buffer: %s\n", buffer); // Imprimir el buffer
+    if (estado == 1 ) { // 
+        printf("1, %s\n", buffer[0]);
+    } else if (estado == 2) { // 
+        printf("2, %s\n", buffer[0]);
+    } else if (estado == 3) { // 
+        printf("3, , %s\n", buffer[0]);
+    } else if (estado == 4) { // 
+        printf("4, , %s\n", buffer[0]);
+    } else if (estado == 5) { // 
+        if(es_espacio(buffer[0])){
+            return;
+        }
+        for(int i = 0; i < sizeof(simbolos)/sizeof(simbolos[0]); i++){
+            if(strcmp(buffer, simbolos[i]) == 0){
+                printf("%d, %s\n",i+sizeof(palabras_clave)/sizeof(palabras_clave[0])+sizeof(separadores)/sizeof(separadores[0])+1, buffer[0]);
+                return;
+            }
+        }
+        printf("Other\n");
+        identifier_count++;
+        printf("%d, %d, , %s\n" , identifier_id, identifier_count, buffer[0]); // Imprimir el token
+    } else if (estado == 7) { // 
+        for(int i = 0; i < sizeof(palabras_clave)/sizeof(palabras_clave[0]); i++){
+            if(strcmp(buffer, separadores[i]) == 0){
+                printf("%d, %s\n",i+sizeof(separadores)/sizeof(separadores[0])+1, buffer);
+                return;
+            }
+        }
+        identifier_count++;
+        printf("%d, %d, %s\n" , identifier_id, identifier_count, buffer); // Imprimir el token
+    } else if (estado == 9){
+        string_count++;
+        printf("%d, %d, , %s\n" , string_id, string_count, buffer); // Imprimir el token
+    }
+}
 
 int main(int argc, char* argv[]) {
     // Comprobar si se recibieron los argumentos minimos
@@ -85,130 +171,23 @@ int main(int argc, char* argv[]) {
     int index = 0;
 
     // Inicializar el estado del DFA en INICIO
-    Estado estado = INICIO;
-
-    while ((c = fgetc(archivo)) != EOF) {
-        switch (estado) {
-        // Estado inicial: Recibir un caracter y determinar el estado
-        // correspondiente (ID, NUM, STR, OP, SEP)
-        case INICIO:
-            if (es_letra(c) || c == '_') {
-                buffer[index++] = c;
-                estado = ID;
-            } else if (es_digito(c)) {
-                buffer[index++] = c;
-                estado = NUM;
-            } else if (c == '"') {
-                buffer[index++] = c;
-                estado = STR;
-            } else if (c == ';' || c == '*' ||c == ',' || c == '&' || c == '<' || c == '>' || c == '.' || c == ':' || c == '=') {
-                buffer[index++] = c;
-                estado = OP;
-            } else if (c == '(' || c == ')' || c == '{' || c == '}') {
-                buffer[index++] = c;
-                estado = SEP;
-            } else if(c == '[' || c == ']' || c == '?' || c == '!' || c == '+' || c == '-' || c == '/' || c == '%' || c == '^' || c == '|') {
-                buffer[index++] = c;
-                buffer[index] = '\0';
-                identifier_count++;
-                printf("<%d, %d>\n", identifier_id, identifier_count);
-                index = 0;
-            } else if (!es_espacio(c)) {
-                printf("Error");
-                estado = ERROR;
+    c = fgetc(archivo);
+    while (c != EOF) {
+        int estado = 0;
+        index = 0; // Reiniciar el buffer
+        while(!Accept(estado) && !Error(estado)){
+            estado = T(estado, c);
+            buffer[index++] = c; // Guardar el caracter en el buffer
+            printf("%s\n", buffer); // Imprimir el caracter
+            if(Advance(estado, c)){
+                c = fgetc(archivo); // Leer el siguiente caracter
             }
-            break;
-
-        case ID:
-            // ===== Estado ID =====
-            if (es_alfanumerico(c) || c == '_') {
-                buffer[index++] = c;
-            } else {
-                buffer[index] = '\0';
-                int es_palabra = 0;
-                // Verificar si coincide con alguna palabra clave
-                for (int i = 0; i < sizeof(palabras_clave) / sizeof(palabras_clave[0]); i++){
-                    if (strcmp(buffer, palabras_clave[i]) == 0){
-                        // Si es palabra clave: imprimir su token (Sumando el ID de los separadores)
-                        printf("<%d>\n", i + 1 + sizeof(separadores) / sizeof(separadores[0]));
-                        es_palabra = 1;
-                        break;
-                    }
-                }
-                if (!es_palabra){
-                    identifier_count++;
-                    // Si es identificador: asignar ID secuencial
-                    printf("<%d, %d>\n", identifier_id, identifier_count);
-                }
-                index = 0;
-                estado = INICIO;
-                ungetc(c, archivo);
-            }
-            break;
-
-        case NUM:
-            // ===== Estado NUM =====
-            if (es_digito(c)) {
-                buffer[index++] = c;
-            } else {
-                buffer[index] = '\0';
-                // No se genera token explícito para NUM
-                index = 0;
-                estado = INICIO;
-                ungetc(c, archivo);
-            }
-            break;
-
-        case STR:
-            // ===== Estado STR =====
-            buffer[index++] = c;
-            if (c == '"') {
-                buffer[index] = '\0';
-                string_count++;
-                // Es String: asignar ID secuencial
-                printf("<%d, %d>\n", string_id, string_count);
-                index = 0;
-                estado = INICIO;
-            }
-            break;
-
-        case OP:
-            // ===== Estado OP =====
-            buffer[index] = '\0';
-            for (int i = 0; i < sizeof(simbolos) / sizeof(simbolos[0]); i++){
-                if (strcmp(buffer, simbolos[i]) == 0){
-                    // Si es simbolo: imprimir su token (Sumando el ID de los separadores y palabras clave)
-                    printf("<%d>\n", i + 1 + (sizeof(separadores) / sizeof(separadores[0])) + (sizeof(palabras_clave) / sizeof(palabras_clave[0])));
-                    break;
-                }
-            }
-            index = 0;
-            estado = INICIO;
-            ungetc(c, archivo);
-            break;
-        
-        case SEP:
-            // ===== Estado SEP =====
-            buffer[index] = '\0';
-            for (int i = 0; i < sizeof(separadores) / sizeof(separadores[0]); i++){
-                if (strcmp(buffer, separadores[i]) == 0){
-                    // Si es separador: imprimir su token
-                    printf("<%d>\n", i+1);
-                    break;
-                }
-            }
-            index = 0;
-            estado = INICIO;
-            ungetc(c, archivo);
-            break;
-
-        default:
-            break;
         }
-
-        // Si se llega a un estado de error, terminar
-        if(estado == ERROR) {
-            break;
+        if(Accept(estado)){
+            record_token(buffer, index, estado);
+            //fgetc(archivo); // Leer el siguiente caracter
+        } else{
+            printf("Error: token no reconocido eres un estupido vuelvelo a hacer por favor.\n");
         }
     }
 
