@@ -28,15 +28,11 @@ int es_espacio(char c) {
 
 // Funcion para determinar si un caracter es un delimitador
 int es_delimitador(char c) {
-    return c == ';' || c == ',' || c == '.' || c == ':' || c == '=' || c == '*' || c == '&' || c == '<' || c == '>';
-}
-
-// Función para determinar si es un simbolo no clave del lenguaje
-// (simbolos que no son palabras clave, pero son parte del lenguaje)
-int es_simbolo_no_clave(char c) {
-    return c == '+' || c == '-' || c == '/' || c == '%' || c == '!' ||
-           c == '~' || c == '^' || c == '|' || c == '?' || c == '#' ||
-           c == '\\' || c == '[' || c == ']';
+    return c == ';' || c == ',' || c == '.' || c == ':' || c == '=' || 
+            c == '*' || c == '&' || c == '<' || c == '>' || c == '\'' ||
+            c == '+' || c == '-' || c == '/' || c == '%' || c == '!' ||
+            c == '~' || c == '^' || c == '|' || c == '?' || c == '#' ||
+            c == '/' || c == '[' || c == ']'|| c == '\\';
 }
 
 // Separadores del lenguaje
@@ -104,7 +100,7 @@ int char_to_col(char c) {
     if (es_digito(c)){
         return 2; // Columna para digitos
     }
-    if (es_espacio(c) || es_delimitador(c) || es_simbolo_no_clave(c)){
+    if (es_espacio(c) || es_delimitador(c)){
         return 3; // Columna para delimitadores 
     } 
     if (c == '('){
