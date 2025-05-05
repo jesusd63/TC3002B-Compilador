@@ -149,7 +149,7 @@ void record_token(char* buffer, int index, int estado) {
     for(int i = 1; i < 5; i++){
         if(estado == i){
             // Imprimir el token
-            printf("%d, %s\n", i, buffer);
+            printf("%d\n", i);
         }
     }
 
@@ -162,14 +162,14 @@ void record_token(char* buffer, int index, int estado) {
         // Buscar si el caracter es un simbolo reservado
         for(int i = 0; i < sizeof(simbolos)/sizeof(simbolos[0]); i++){
             if(strcmp(buffer, simbolos[i]) == 0){
-                printf("%d, %s\n",i+sizeof(palabras_clave)/sizeof(palabras_clave[0])+sizeof(separadores)/sizeof(separadores[0])+1, buffer);
+                printf("%d\n",i+sizeof(palabras_clave)/sizeof(palabras_clave[0])+sizeof(separadores)/sizeof(separadores[0])+1);
                 return;
             }
         }
         // Sumar a la cuenta de delimitadores
         identifier_count++;
         // Imprimir el token
-        printf("%d, %d, %s\n" , identifier_id, identifier_count, buffer);
+        printf("%d, %d\n" , identifier_id, identifier_count);
     
     // Estado aceptador de identificadores
     } else if (estado == 7) { // 
@@ -177,21 +177,21 @@ void record_token(char* buffer, int index, int estado) {
         for(int i = 0; i < sizeof(palabras_clave)/sizeof(palabras_clave[0]); i++){
             if(strcmp(buffer, palabras_clave[i]) == 0){
                 // Imprimir el token
-                printf("%d, %s\n",i+sizeof(separadores)/sizeof(separadores[0])+1, buffer);
+                printf("%d\n",i+sizeof(separadores)/sizeof(separadores[0])+1);
                 return;
             }
         }
         // Sumar a la cuenta de identificadores
         identifier_count++;
         // Imprimir el token
-        printf("%d, %d, %s\n" , identifier_id, identifier_count, buffer);
+        printf("%d, %d\n" , identifier_id, identifier_count);
     }
     // Estado aceptador de strings 
     else if (estado == 9){
         // Sumar a la cuenta de strings
         string_count++;
         // Imprimir el token
-        printf("%d, %d, %s\n" , string_id, string_count, buffer);
+        printf("%d, %d\n" , string_id, string_count);
     }
 }
 
