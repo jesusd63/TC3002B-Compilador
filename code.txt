@@ -1,6 +1,6 @@
 int main() {
     int a = 10;
-    int b = a * 5;
+    int b = a + 5;
     if (b > 10) {
         printf("b es mayor que 10\n");
     } else {
@@ -9,5 +9,5 @@ int main() {
     class
     delete
 }
-@
+if
 class

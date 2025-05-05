@@ -2,8 +2,37 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define MAX_TOKEN 100
+#define MAX_TOKEN 500
+
+// Definicion de la estructura del nodo de la lista ligada
+struct Node {
+    char data[500];
+    struct Node* next;
+};
+
+// Funcion para crear un nuevo nodo
+struct Node* createNode(char data[]) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    strcpy(newNode->data, data);
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Funcion para insertar un nodo al final de la lista ligada
+void insertAtEnd(struct Node** head, char data[]) {
+    struct Node* newNode = createNode(data);
+    if (*head == NULL) {
+        *head = newNode;
+        return;
+    }
+    struct Node* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newNode;
+}
 
 // Funcion para determinar si un caracter es una letra (a-z, A-Z)
 int es_letra(char c) {
@@ -100,7 +129,7 @@ int char_to_col(char c) {
     if (es_digito(c)){
         return 2; // Columna para digitos
     }
-    if (es_espacio(c) || es_delimitador(c)){
+    if (es_espacio(c) || es_delimitador(c) || c == EOF){
         return 3; // Columna para delimitadores 
     } 
     if (c == '('){
@@ -141,7 +170,7 @@ int Advance(int estado, char c) {
 }
 
 // Funcion que imprime el token
-void record_token(char* buffer, int index, int estado) {
+void record_token(char* buffer, int index, int estado, struct Node** head, struct Node** head2) {
     // Terminar el string
     buffer[index] = '\0';
 
@@ -170,6 +199,7 @@ void record_token(char* buffer, int index, int estado) {
         identifier_count++;
         // Imprimir el token
         printf("%d, %d\n" , identifier_id, identifier_count);
+        insertAtEnd(head, buffer); // Insertar el token en la lista ligada
     
     // Estado aceptador de identificadores
     } else if (estado == 7) { // 
@@ -185,6 +215,7 @@ void record_token(char* buffer, int index, int estado) {
         identifier_count++;
         // Imprimir el token
         printf("%d, %d\n" , identifier_id, identifier_count);
+        insertAtEnd(head, buffer); // Insertar el token en la lista ligada
     }
     // Estado aceptador de strings 
     else if (estado == 9){
@@ -192,6 +223,7 @@ void record_token(char* buffer, int index, int estado) {
         string_count++;
         // Imprimir el token
         printf("%d, %d\n" , string_id, string_count);
+        insertAtEnd(head2, buffer); // Insertar el token en la lista ligada
     }
 }
 
@@ -202,8 +234,12 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Variables para los IDs de los Strings
+    // Variable para los IDs de los Strings
     string_id = identifier_id+1;
+
+    // Inicializar la lista ligada de tokens
+    struct Node* head = NULL;
+    struct Node* head2 = NULL;
 
 
     // Abrir el archivo en modo lectura
@@ -251,14 +287,34 @@ int main(int argc, char* argv[]) {
                 ungetc(c, archivo);
             }
             // Imprimir el token
-            record_token(buffer, index, estado);
+            record_token(buffer, index, estado, &head, &head2);
             // Leer el siguiente caracter
             c = fgetc(archivo);
-        } else{ // Si el estado es de error
+        } else if(Error(estado)){ // Si el estado es de error
             printf("Error: token no reconocido.\n");
             // Terminar el programa
-            break;
+            return 0;
         }
+    }
+
+    // Imprimir la tabla de simbolos
+    struct Node* temp = head;
+    int i = 0;
+    printf("--------------------------------\n");
+    printf("Tabla de simbolos de identificadores:\n");
+    while (temp != NULL) {
+        i++;
+        printf("%d, %s\n",i, temp->data);
+        temp = temp->next;
+    }
+    temp = head2;
+    i = 0;
+    printf("--------------------------------\n");
+    printf("Tabla de simbolos de strings:\n");
+    while (temp != NULL) {
+        i++;
+        printf("%d, %s\n",i, temp->data);
+        temp = temp->next;
     }
 
     // Cerrar el archivo
