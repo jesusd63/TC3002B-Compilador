@@ -66,13 +66,13 @@ int Error(int estado){
 }
 
 int TransitionTable[10][10] = {
-    [0] = {6, 6, 5, 5, 1, 2, 3, 4, 8, 5}, // Estado de inicio
+    [0] = {6, 6, 5, 5, 1, 2, 3, 4, 8, 10}, // Estado de inicio
     [1] = {0}, // Estado inicial
     [2] = {0}, // Estado de identificador
     [3] = {0}, // Estado de numero
     [4] = {0}, // Estado de cadena
     [5] = {0}, // Estado de separador
-    [6] = {6, 6, 6, 7, 5, 5, 5, 5, 5, 5},
+    [6] = {6, 6, 6, 7, 7, 7, 7, 7, 7, 10},
     [7] = {0}, // Estado de simbolo
     [8] = {8, 8, 8, 8, 8, 8, 8, 8, 9, 8}, // Estado de palabra clave
     [9] = {0} // Estado de fin
@@ -116,6 +116,7 @@ int char_to_col(char c) {
 
 int T(int estado, char c) {
     int col = char_to_col(c);
+    // printf("Columna: %d\n", col);
     return TransitionTable[estado][col]; // Retorna el nuevo estado
 }
 
@@ -154,9 +155,8 @@ void record_token(char* buffer, int index, int estado) {
         printf("%d, %d, %s\n" , identifier_id, identifier_count, buffer); // Imprimir el token
     } else if (estado == 7) { // 
         for(int i = 0; i < sizeof(palabras_clave)/sizeof(palabras_clave[0]); i++){
-            printf("Comparando: %s con %s\n", buffer, palabras_clave[i]);
             if(strcmp(buffer, palabras_clave[i]) == 0){
-                printf("PALABRA CLAVE");
+                // printf("PALABRA CLAVE\n");
                 printf("%d, %s\n",i+sizeof(separadores)/sizeof(separadores[0])+1, buffer);
                 return;
             }
@@ -197,22 +197,36 @@ int main(int argc, char* argv[]) {
         int estado = 0;
         index = 0; // Reiniciar el buffer
         while(!Accept(estado) && !Error(estado)){
-            //printf("Estado inicial: %d, Caracter: %c\n", estado, c);
+            // printf("Estado inicial: %d, Caracter: %c\n", estado, c);
             estado = T(estado, c);
-            //printf("Estado: %d, Caracter: %c\n", estado, c);
+            // printf("Estado: %d, Caracter: %c\n", estado, c);
             buffer[index++] = c; // Guardar el caracter en el buffer
             if(Advance(estado, c)){
                 c = fgetc(archivo); // Leer el siguiente caracter
             }
+            // else{
+            //     if(estado != 0){
+            //         buffer[index-1] = '\0'; // Terminar el string
+            //         ungetc(c, archivo); // Devolver el caracter al flujo de entrada
+            //     }
+            // }
         }
         if(Accept(estado)){
-            record_token(buffer, index, estado);
-            if(estado == 7){
-                ungetc(c, archivo); // Leer el siguiente caracter
+            if(es_espacio(buffer[0])){
+                c = fgetc(archivo); // Leer el siguiente caracter
+                continue;
             }
+            if(estado == 7){
+                index--; 
+                ungetc(c, archivo); // Devolver el caracter al flujo de entrada
+            }
+            record_token(buffer, index, estado);
+            // printf("Estado aceptador: %d, Caracter: %c\n", estado, c);
+            
             c = fgetc(archivo); // Leer el siguiente caracter
         } else{
-            printf("Error: token no reconocido eres un estupido vuelvelo a hacer por favor.\n");
+            printf("Error: token no reconocido.\n");
+            break;
         }
     }
 
