@@ -300,21 +300,25 @@ int main(int argc, char* argv[]) {
     // Imprimir la tabla de simbolos
     struct Node* temp = head;
     int i = 0;
-    printf("--------------------------------\n");
-    printf("Tabla de simbolos de identificadores:\n");
-    while (temp != NULL) {
-        i++;
-        printf("%d, %s\n",i, temp->data);
-        temp = temp->next;
+    if(temp != NULL){
+        printf("--------------------------------\n");
+        printf("Tabla de simbolos de identificadores:\n");
+        while (temp != NULL) {
+            i++;
+            printf("%d, %s\n",i, temp->data);
+            temp = temp->next;
+        }
     }
     temp = head2;
     i = 0;
-    printf("--------------------------------\n");
-    printf("Tabla de simbolos de strings:\n");
-    while (temp != NULL) {
-        i++;
-        printf("%d, %s\n",i, temp->data);
-        temp = temp->next;
+    if(temp != NULL){
+        printf("--------------------------------\n");
+        printf("Tabla de simbolos de strings:\n");
+        while (temp != NULL) {
+            i++;
+            printf("%d, %s\n",i, temp->data);
+            temp = temp->next;
+        }
     }
 
     // Cerrar el archivo
